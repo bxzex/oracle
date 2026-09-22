@@ -7,25 +7,21 @@
 <meta name="description" content="A character-level transformer with real multi-head self-attention, trained in the browser on text you paste, with its attention shown as it reads." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Red+Hat+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Red+Hat+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
 :root{
   --bg:#07060d; --panel:#0d0b17; --line:#1a1729; --line2:#272240;
   --ink:#ece9f7; --sub:#8f88ad; --dim:#565073;
   --vi:#7c4dff; --mg:#ff2d95; --cy:#25e8c8;
-  --d:"Unbounded",system-ui,sans-serif;
+  --d:"Archivo",system-ui,sans-serif;
   --m:"Red Hat Mono",ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--m);font-size:13px;padding:0 20px 60px;-webkit-font-smoothing:antialiased;
-  background-image:radial-gradient(900px 500px at 12% -6%,#1b0f3d 0%,transparent 60%),
-                   radial-gradient(760px 440px at 92% 4%,#3a0b2c 0%,transparent 58%)}
+body{background:var(--bg);color:var(--ink);font-family:var(--m);font-size:13px;padding:0 20px 60px;-webkit-font-smoothing:antialiased;}
 .wrap{max-width:1200px;margin:0 auto}
 header{padding:34px 0 20px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--line2)}
 h1{font-family:var(--d);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:-.04em}
-h1 span{color:var(--vi)}
-h1 i{color:var(--mg);font-style:normal}
 .sub{color:var(--sub);font-size:13px;line-height:1.6;max-width:54ch;margin:0 0 5px}
 .badge{margin-left:auto;font-size:10px;letter-spacing:.18em;color:var(--cy);border:1px solid var(--line2);padding:6px 12px;border-radius:999px;margin-bottom:5px}
 
@@ -33,7 +29,7 @@ h1 i{color:var(--mg);font-style:normal}
 button{font-family:var(--m);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);background:#151027;
   border:1px solid var(--line2);padding:9px 14px;cursor:pointer;border-radius:7px}
 button:hover{border-color:var(--vi);color:#c6b4ff}
-button.go{background:linear-gradient(180deg,#8b5cff,#6a35e8);border-color:#7c4dff;color:#fff;font-weight:600}
+button.go{background:#6f45f0;border-color:#7c4dff;color:#fff;font-weight:600}
 button.go:hover{filter:brightness(1.1);color:#fff}
 button[disabled]{opacity:.35;cursor:not-allowed}
 select{font-family:var(--m);font-size:11.5px;background:#151027;color:var(--ink);border:1px solid var(--line2);padding:8px 9px;border-radius:7px}
@@ -68,7 +64,7 @@ input[type=range]{width:100%;accent-color:var(--vi);background:transparent}
 .bars{display:grid;gap:3px;margin-top:4px}
 .brow{display:grid;grid-template-columns:24px 1fr 44px;gap:8px;align-items:center;font-size:11px;color:var(--sub)}
 .bw{height:8px;background:#151027;border-radius:3px;overflow:hidden}
-.bw i{display:block;height:100%;background:linear-gradient(90deg,var(--vi),var(--mg));width:0}
+.bw i{display:block;height:100%;background:var(--vi);width:0}
 .arch{font-size:11px;color:var(--sub);line-height:1.95}
 .arch b{color:var(--cy);font-weight:500}
 footer{color:var(--dim);font-size:11.5px;margin-top:24px;border-top:1px solid var(--line2);padding-top:16px;line-height:1.8}
@@ -79,10 +75,10 @@ footer a{color:var(--sub)}
 <div class="wrap">
 <header>
   <div>
-    <h1>OR<span>A</span>C<i>LE</i></h1>
-    <p class="sub" style="margin-top:11px">A character-level transformer — real multi-head causal self-attention, layer norm, residuals and Adam — trained in this tab on whatever text you paste, with its attention shown as it reads.</p>
+    <h1>Oracle</h1>
+    <p class="sub" style="margin-top:11px">A character-level transformer with real multi-head causal self-attention, layer norm, residuals and Adam, trained in this tab on whatever text you paste, with its attention shown as it reads.</p>
   </div>
-  <span class="badge">NO WEIGHTS FETCHED</span>
+  
 </header>
 
 <div class="bar">
