@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Oracle</title>
+<meta name="description" content="A character-level transformer with real multi-head self-attention, trained in the browser on text you paste, with its attention shown as it reads." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Red+Hat+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#07060d; --panel:#0d0b17; --line:#1a1729; --line2:#272240;
+  --ink:#ece9f7; --sub:#8f88ad; --dim:#565073;
+  --vi:#7c4dff; --mg:#ff2d95; --cy:#25e8c8;
+  --d:"Unbounded",system-ui,sans-serif;
+  --m:"Red Hat Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--m);font-size:13px;padding:0 20px 60px;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 500px at 12% -6%,#1b0f3d 0%,transparent 60%),
+                   radial-gradient(760px 440px at 92% 4%,#3a0b2c 0%,transparent 58%)}
+.wrap{max-width:1200px;margin:0 auto}
+header{padding:34px 0 20px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--line2)}
+h1{font-family:var(--d);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:-.04em}
+h1 span{color:var(--vi)}
+h1 i{color:var(--mg);font-style:normal}
+.sub{color:var(--sub);font-size:13px;line-height:1.6;max-width:54ch;margin:0 0 5px}
+.badge{margin-left:auto;font-size:10px;letter-spacing:.18em;color:var(--cy);border:1px solid var(--line2);padding:6px 12px;border-radius:999px;margin-bottom:5px}
+
+.bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--line)}
+button{font-family:var(--m);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);background:#151027;
+  border:1px solid var(--line2);padding:9px 14px;cursor:pointer;border-radius:7px}
+button:hover{border-color:var(--vi);color:#c6b4ff}
+button.go{background:linear-gradient(180deg,#8b5cff,#6a35e8);border-color:#7c4dff;color:#fff;font-weight:600}
+button.go:hover{filter:brightness(1.1);color:#fff}
+button[disabled]{opacity:.35;cursor:not-allowed}
+select{font-family:var(--m);font-size:11.5px;background:#151027;color:var(--ink);border:1px solid var(--line2);padding:8px 9px;border-radius:7px}
+.status{margin-left:auto;font-size:11px;color:var(--dim);letter-spacing:.1em}
+
+.grid{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:18px;align-items:start}
+@media(max-width:940px){.grid{grid-template-columns:1fr}h1{font-size:30px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ch{padding:10px 14px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+  display:flex;justify-content:space-between;gap:10px}
+.ch b{color:var(--sub);font-weight:500;letter-spacing:.04em;text-transform:none}
+.cb{padding:14px}
+textarea{width:100%;min-height:104px;resize:vertical;background:#0a0814;color:var(--ink);border:1px solid var(--line2);
+  border-radius:8px;padding:11px;font-family:var(--m);font-size:12px;line-height:1.65;outline:none}
+textarea:focus{border-color:var(--vi)}
+.out{font-family:var(--m);font-size:13.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word;min-height:150px;color:var(--ink)}
+.out .seed{color:var(--dim)}
+.out .new{color:#d8ccff}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.st{padding:12px 14px;border-right:1px solid var(--line)}
+.st:last-child{border-right:0}
+.st .k{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+.st .v{font-family:var(--d);font-weight:600;font-size:21px;margin-top:5px;letter-spacing:-.02em}
+canvas{display:block;width:100%;background:#0a0814;border:1px solid var(--line2);border-radius:8px}
+.heads{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.heads canvas{image-rendering:pixelated;aspect-ratio:1}
+.hlab{font-size:9.5px;color:var(--dim);letter-spacing:.1em;text-align:center;margin-top:5px}
+.ctl{margin-bottom:11px}
+.ctl label{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.ctl label b{color:var(--mg);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--vi);background:transparent}
+.bars{display:grid;gap:3px;margin-top:4px}
+.brow{display:grid;grid-template-columns:24px 1fr 44px;gap:8px;align-items:center;font-size:11px;color:var(--sub)}
+.bw{height:8px;background:#151027;border-radius:3px;overflow:hidden}
+.bw i{display:block;height:100%;background:linear-gradient(90deg,var(--vi),var(--mg));width:0}
+.arch{font-size:11px;color:var(--sub);line-height:1.95}
+.arch b{color:var(--cy);font-weight:500}
+footer{color:var(--dim);font-size:11.5px;margin-top:24px;border-top:1px solid var(--line2);padding-top:16px;line-height:1.8}
+footer a{color:var(--sub)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>OR<span>A</span>C<i>LE</i></h1>
+    <p class="sub" style="margin-top:11px">A character-level transformer — real multi-head causal self-attention, layer norm, residuals and Adam — trained in this tab on whatever text you paste, with its attention shown as it reads.</p>
+  </div>
+  <span class="badge">NO WEIGHTS FETCHED</span>
+</header>
+
+<div class="bar">
+  <button class="go" id="train">Train</button>
+  <button id="reset">New weights</button>
+  <select id="corpus"></select>
+  <select id="size">
+    <option value="small">2 layers · 3 heads · 48 dim</option>
+    <option value="tiny">1 layer · 2 heads · 32 dim</option>
+    <option value="big">3 layers · 4 heads · 64 dim</option>
+  </select>
+  <span class="status" id="status">idle</span>
+</div>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <div class="ch"><span>Training</span><b id="stepn">step 0</b></div>
+      <div class="stats" style="border-top:0">
+        <div class="st"><div class="k">Loss</div><div class="v" id="s-loss">—</div></div>
+        <div class="st"><div class="k">Perplexity</div><div class="v" id="s-ppl">—</div></div>
+        <div class="st"><div class="k">Parameters</div><div class="v" id="s-par">—</div></div>
+        <div class="st"><div class="k">Tokens/s</div><div class="v" id="s-tps">—</div></div>
+      </div>
+      <div class="cb"><canvas id="chart" height="116"></canvas></div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="ch"><span>Generated</span><b id="gnote">temperature 0.8</b></div>
+      <div class="cb"><div class="out" id="out"><span class="seed">press train, then watch it learn</span></div></div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="ch"><span>Attention, final layer</span><b id="anote">—</b></div>
+      <div class="cb">
+        <div class="heads" id="heads"></div>
+        <p style="font-size:10.5px;color:var(--dim);margin:11px 0 0;line-height:1.7">Rows are the character being predicted, columns the characters it may look back at. The upper triangle is masked, because a causal model cannot read ahead.</p>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="ch"><span>Corpus</span><b id="cnote">—</b></div>
+      <div class="cb"><textarea id="text" spellcheck="false"></textarea>
+        <button id="apply" style="margin-top:9px;width:100%">Use this text</button></div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="ch"><span>Sampling</span></div>
+      <div class="cb">
+        <div class="ctl"><label>Temperature <b id="t-v">0.80</b></label><input type="range" id="temp" min="0.1" max="1.6" step="0.05" value="0.8"></div>
+        <div class="ctl"><label>Top k <b id="k-v">12</b></label><input type="range" id="topk" min="1" max="40" step="1" value="12"></div>
+        <div class="ctl" style="margin-bottom:0"><label>Learning rate <b id="l-v">0.003</b></label><input type="range" id="lr" min="-3.5" max="-1.8" step="0.05" value="-2.52"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="ch"><span>Next character</span><b id="ctxnote">—</b></div>
+      <div class="cb"><div class="bars" id="bars"></div></div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="ch"><span>Architecture</span></div>
+      <div class="cb arch" id="arch"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Built by <a href="https://bxzex.com">bxzex</a>. Attention, layer norm, GELU, residual streams and Adam, with every gradient derived by hand and checked against numerical differentiation.
+  <a href="https://github.com/bxzex/oracle">Source on GitHub</a>.
+</footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* =====================================================================
+   Small linear algebra layer. Everything is a flat Float32Array with an
+   explicit shape, because a JS array of arrays would spend all its time
+   chasing pointers.
+   ===================================================================== */
+function zeros(n){ return new Float32Array(n); }
+let seed = 1337;
+const rnd = () => { seed = (seed*1103515245 + 12345) & 0x7fffffff; return seed/0x7fffffff; };
+const gauss = () => Math.sqrt(-2*Math.log(rnd()+1e-9))*Math.cos(6.2831853*rnd());
+function randn(n, s){ const a = zeros(n); for(let i=0;i<n;i++) a[i] = gauss()*s; return a; }
+
+// Y[N,M] = X[N,K] @ W[K,M] + b[M]
+function linF(X, W, b, N, K, M){
+  const Y = zeros(N*M);
+  for(let n=0;n<N;n++){
+    const xo = n*K, yo = n*M;
+    if(b) Y.set(b, yo);
+    for(let k=0;k<K;k++){
+      const x = X[xo+k];
+      if(x === 0) continue;
+      const wo = k*M;
+      for(let m=0;m<M;m++) Y[yo+m] += x*W[wo+m];
+    }
+  }
+  return Y;
+}
+function linB(dY, X, W, N, K, M, dW, db){
+  const dX = zeros(N*K);
+  for(let n=0;n<N;n++){
+    const xo = n*K, yo = n*M;
+    for(let m=0;m<M;m++){
+      const g = dY[yo+m];
+      if(g === 0) continue;
+      if(db) db[m] += g;
+    }
+    for(let k=0;k<K;k++){
+      const wo = k*M;
+      let s = 0;
+      const x = X[xo+k];
+      for(let m=0;m<M;m++){ const g = dY[yo+m]; s += g*W[wo+m]; dW[wo+m] += g*x; }
+      dX[xo+k] = s;
+    }
+  }
+  return dX;
+}
+function lnF(X, g, bb, N, D){
+  const Y = zeros(N*D), mean = zeros(N), rstd = zeros(N), xhat = zeros(N*D);
+  for(let n=0;n<N;n++){
+    const o = n*D;
+    let m = 0; for(let i=0;i<D;i++) m += X[o+i]; m /= D;
+    let v = 0; for(let i=0;i<D;i++){ const d = X[o+i]-m; v += d*d; } v /= D;
+    const r = 1/Math.sqrt(v+1e-5);
+    mean[n] = m; rstd[n] = r;
+    for(let i=0;i<D;i++){ const h = (X[o+i]-m)*r; xhat[o+i] = h; Y[o+i] = h*g[i] + bb[i]; }
+  }
+  return { Y, mean, rstd, xhat };
+}
+function lnB(dY, cache, g, N, D, dg, db){
+  const dX = zeros(N*D);
+  for(let n=0;n<N;n++){
+    const o = n*D, r = cache.rstd[n];
+    let s1 = 0, s2 = 0;
+    for(let i=0;i<D;i++){
+      const dh = dY[o+i]*g[i];
+      dg[i] += dY[o+i]*cache.xhat[o+i];
+      db[i] += dY[o+i];
+      s1 += dh; s2 += dh*cache.xhat[o+i];
+    }
+    s1 /= D; s2 /= D;
+    for(let i=0;i<D;i++){
+      const dh = dY[o+i]*g[i];
+      dX[o+i] = (dh - s1 - cache.xhat[o+i]*s2) * r;
+    }
+  }
+  return dX;
+}
+const GC = Math.sqrt(2/Math.PI);
+function gelu(x){ return 0.5*x*(1 + Math.tanh(GC*(x + 0.044715*x*x*x))); }
+function dgelu(x){
+  const t = Math.tanh(GC*(x + 0.044715*x*x*x));
+  return 0.5*(1+t) + 0.5*x*(1-t*t)*GC*(1 + 3*0.044715*x*x);
+}
+
+/* ---------- the model ---------- */
+const SIZES = { tiny:{L:1,H:2,D:32,T:40}, small:{L:2,H:3,D:48,T:48}, big:{L:3,H:4,D:64,T:56} };
+let cfg = null, M = null, vocab = [], stoi = new Map(), V = 0, data = null;
+
+function makeParam(n, s){ return { v: s ? randn(n,s) : zeros(n), m: zeros(n), vv: zeros(n), g: zeros(n) }; }
+function buildModel(sizeKey){
+  const c = SIZES[sizeKey];
+  cfg = { ...c, hd: c.D/c.H };
+  const D = cfg.D;
+  M = { blocks: [] };
+  M.wte = makeParam(V*D, 0.02);
+  M.wpe = makeParam(cfg.T*D, 0.01);
+  for(let l=0;l<cfg.L;l++){
+    M.blocks.push({
+      ln1g: { ...makeParam(D), v: (()=>{ const a=zeros(D); a.fill(1); return a; })() },
+      ln1b: makeParam(D),
+      aw:   makeParam(D*3*D, 0.02), ab: makeParam(3*D),
+      pw:   makeParam(D*D, 0.02/Math.sqrt(2*cfg.L)), pb: makeParam(D),
+      ln2g: { ...makeParam(D), v: (()=>{ const a=zeros(D); a.fill(1); return a; })() },
+      ln2b: makeParam(D),
+      fw:   makeParam(D*4*D, 0.02), fb: makeParam(4*D),
+      fpw:  makeParam(4*D*D, 0.02/Math.sqrt(2*cfg.L)), fpb: makeParam(D),
+    });
+  }
+  M.lnfg = { ...makeParam(D), v: (()=>{ const a=zeros(D); a.fill(1); return a; })() };
+  M.lnfb = makeParam(D);
+  M.step = 0;
+  history = [];
+  $("s-par").textContent = params().toLocaleString();
+  $("arch").innerHTML =
+    "vocabulary <b>"+V+"</b> characters<br>context <b>"+cfg.T+"</b> tokens<br>embedding <b>"+D+"</b><br>"+
+    "blocks <b>"+cfg.L+"</b> · heads <b>"+cfg.H+"</b> · head dim <b>"+cfg.hd+"</b><br>"+
+    "mlp <b>"+(4*D)+"</b> · GELU<br>norm <b>pre-LN</b> · weights <b>tied</b><br>optimiser <b>Adam</b>";
+}
+function allParams(){
+  const out = [M.wte, M.wpe, M.lnfg, M.lnfb];
+  M.blocks.forEach(b => out.push(b.ln1g,b.ln1b,b.aw,b.ab,b.pw,b.pb,b.ln2g,b.ln2b,b.fw,b.fb,b.fpw,b.fpb));
+  return out;
+}
+function params(){ return allParams().reduce((a,p)=>a+p.v.length,0); }
+function zeroGrads(){ allParams().forEach(p => p.g.fill(0)); }
+
+/* forward over a batch of B sequences of length T; returns loss and caches */
+function forward(idx, targets, keepAttn){
+  const { L, H, D, T, hd } = cfg;
+  const B = idx.length / T, N = B*T;
+  const x = zeros(N*D);
+  for(let n=0;n<N;n++){
+    const tok = idx[n], pos = n % T;
+    for(let i=0;i<D;i++) x[n*D+i] = M.wte.v[tok*D+i] + M.wpe.v[pos*D+i];
+  }
+  const cache = { B, N, x0: x.slice(), blocks: [], attn:null };
+  let h = x;
+  for(let l=0;l<L;l++){
+    const bl = M.blocks[l];
+    const c1 = lnF(h, bl.ln1g.v, bl.ln1b.v, N, D);
+    const qkv = linF(c1.Y, bl.aw.v, bl.ab.v, N, D, 3*D);
+    const att = zeros(B*H*T*T), out = zeros(N*D);
+    const scale = 1/Math.sqrt(hd);
+    for(let b=0;b<B;b++) for(let hh=0;hh<H;hh++){
+      for(let i=0;i<T;i++){
+        const qo = (b*T+i)*3*D + hh*hd;
+        let mx = -Infinity;
+        const row = ((b*H+hh)*T+i)*T;
+        for(let j=0;j<=i;j++){
+          const ko = (b*T+j)*3*D + D + hh*hd;
+          let s = 0;
+          for(let k=0;k<hd;k++) s += qkv[qo+k]*qkv[ko+k];
+          s *= scale;
+          att[row+j] = s;
+          if(s > mx) mx = s;
+        }
+        let sum = 0;
+        for(let j=0;j<=i;j++){ const e = Math.exp(att[row+j]-mx); att[row+j] = e; sum += e; }
+        for(let j=0;j<=i;j++) att[row+j] /= sum;
+        const oo = (b*T+i)*D + hh*hd;
+        for(let j=0;j<=i;j++){
+          const vo = (b*T+j)*3*D + 2*D + hh*hd, a = att[row+j];
+          for(let k=0;k<hd;k++) out[oo+k] += a*qkv[vo+k];
+        }
+      }
+    }
+    const proj = linF(out, bl.pw.v, bl.pb.v, N, D, D);
+    const res1 = zeros(N*D);
+    for(let i=0;i<N*D;i++) res1[i] = h[i] + proj[i];
+
+    const c2 = lnF(res1, bl.ln2g.v, bl.ln2b.v, N, D);
+    const fc = linF(c2.Y, bl.fw.v, bl.fb.v, N, D, 4*D);
+    const act = zeros(N*4*D);
+    for(let i=0;i<act.length;i++) act[i] = gelu(fc[i]);
+    const fp = linF(act, bl.fpw.v, bl.fpb.v, N, 4*D, D);
+    const res2 = zeros(N*D);
+    for(let i=0;i<N*D;i++) res2[i] = res1[i] + fp[i];
+
+    cache.blocks.push({ hin:h, c1, qkv, att, out, res1, c2, fc, act });
+    if(keepAttn && l === L-1) cache.attn = att;
+    h = res2;
+  }
+  const cf = lnF(h, M.lnfg.v, M.lnfb.v, N, D);
+  // tied head: logits = xf @ wte^T
+  const logits = zeros(N*V);
+  for(let n=0;n<N;n++){
+    const xo = n*D, lo = n*V;
+    for(let t=0;t<V;t++){
+      let s = 0; const wo = t*D;
+      for(let i=0;i<D;i++) s += cf.Y[xo+i]*M.wte.v[wo+i];
+      logits[lo+t] = s;
+    }
+  }
+  let loss = 0;
+  const probs = zeros(N*V);
+  for(let n=0;n<N;n++){
+    const lo = n*V;
+    let mx = -Infinity;
+    for(let t=0;t<V;t++) if(logits[lo+t] > mx) mx = logits[lo+t];
+    let sum = 0;
+    for(let t=0;t<V;t++){ const e = Math.exp(logits[lo+t]-mx); probs[lo+t] = e; sum += e; }
+    for(let t=0;t<V;t++) probs[lo+t] /= sum;
+    if(targets) loss += -Math.log(Math.max(1e-9, probs[lo+targets[n]]));
+  }
+  cache.h = h; cache.cf = cf; cache.probs = probs;
+  return { loss: targets ? loss/N : 0, probs, cache };
+}
+
+function backward(idx, targets, cache){
+  const { L, H, D, T, hd } = cfg;
+  const { B, N } = cache;
+  const inv = 1/N;
+
+  // dlogits = (p - onehot)/N, and the tied head sends gradient to both sides
+  const dlog = zeros(N*V);
+  for(let n=0;n<N;n++){
+    const lo = n*V;
+    for(let t=0;t<V;t++) dlog[lo+t] = cache.probs[lo+t]*inv;
+    dlog[lo+targets[n]] -= inv;
+  }
+  let dxf = zeros(N*D);
+  for(let n=0;n<N;n++){
+    const lo = n*V, xo = n*D;
+    for(let t=0;t<V;t++){
+      const g = dlog[lo+t];
+      if(g === 0) continue;
+      const wo = t*D;
+      for(let i=0;i<D;i++){
+        dxf[xo+i] += g*M.wte.v[wo+i];
+        M.wte.g[wo+i] += g*cache.cf.Y[xo+i];
+      }
+    }
+  }
+  let dh = lnB(dxf, cache.cf, M.lnfg.v, N, D, M.lnfg.g, M.lnfb.g);
+
+  for(let l=L-1; l>=0; l--){
+    const bl = M.blocks[l], C = cache.blocks[l];
+    // residual 2
+    const dres1a = dh.slice();
+    const dfp = dh;
+    const dact = linB(dfp, C.act, bl.fpw.v, N, 4*D, D, bl.fpw.g, bl.fpb.g);
+    const dfc = zeros(N*4*D);
+    for(let i=0;i<dfc.length;i++) dfc[i] = dact[i]*dgelu(C.fc[i]);
+    const dc2 = linB(dfc, C.c2.Y, bl.fw.v, N, D, 4*D, bl.fw.g, bl.fb.g);
+    const dres1b = lnB(dc2, C.c2, bl.ln2g.v, N, D, bl.ln2g.g, bl.ln2b.g);
+    const dres1 = zeros(N*D);
+    for(let i=0;i<N*D;i++) dres1[i] = dres1a[i] + dres1b[i];
+
+    // residual 1
+    const dhin = dres1.slice();
+    const dout = linB(dres1, C.out, bl.pw.v, N, D, D, bl.pw.g, bl.pb.g);
+
+    const dqkv = zeros(N*3*D);
+    const scale = 1/Math.sqrt(hd);
+    for(let b=0;b<B;b++) for(let hh=0;hh<H;hh++){
+      for(let i=0;i<T;i++){
+        const row = ((b*H+hh)*T+i)*T;
+        const oo = (b*T+i)*D + hh*hd;
+        // dA from the value mix, and dV from the attention weights
+        const dA = new Float64Array(i+1);
+        for(let j=0;j<=i;j++){
+          const vo = (b*T+j)*3*D + 2*D + hh*hd;
+          let s = 0;
+          // dA is how much this attention weight changed the output; dV is the
+          // same gradient routed through the weight itself
+          for(let k=0;k<hd;k++){ s += dout[oo+k]*C.qkv[vo+k]; dqkv[vo+k] += C.att[row+j]*dout[oo+k]; }
+          dA[j] = s;
+        }
+        // softmax jacobian
+        let dotp = 0;
+        for(let j=0;j<=i;j++) dotp += dA[j]*C.att[row+j];
+        const qo = (b*T+i)*3*D + hh*hd;
+        for(let j=0;j<=i;j++){
+          const ds = C.att[row+j]*(dA[j]-dotp)*scale;
+          const ko = (b*T+j)*3*D + D + hh*hd;
+          for(let k=0;k<hd;k++){
+            dqkv[qo+k] += ds*C.qkv[ko+k];
+            dqkv[ko+k] += ds*C.qkv[qo+k];
+          }
+        }
+      }
+    }
+    const dc1 = linB(dqkv, C.c1.Y, bl.aw.v, N, D, 3*D, bl.aw.g, bl.ab.g);
+    const dhin2 = lnB(dc1, C.c1, bl.ln1g.v, N, D, bl.ln1g.g, bl.ln1b.g);
+    const dnext = zeros(N*D);
+    for(let i=0;i<N*D;i++) dnext[i] = dhin[i] + dhin2[i];
+    dh = dnext;
+  }
+  // embeddings
+  for(let n=0;n<N;n++){
+    const tok = idx[n], pos = n % T, xo = n*D;
+    for(let i=0;i<D;i++){ M.wte.g[tok*D+i] += dh[xo+i]; M.wpe.g[pos*D+i] += dh[xo+i]; }
+  }
+}
+function adam(lr){
+  M.step++;
+  const b1 = 0.9, b2 = 0.99, eps = 1e-8;
+  const c1 = 1 - Math.pow(b1, M.step), c2 = 1 - Math.pow(b2, M.step);
+  allParams().forEach(p => {
+    for(let i=0;i<p.v.length;i++){
+      const g = p.g[i];
+      p.m[i] = b1*p.m[i] + (1-b1)*g;
+      p.vv[i] = b2*p.vv[i] + (1-b2)*g*g;
+      p.v[i] -= lr * (p.m[i]/c1) / (Math.sqrt(p.vv[i]/c2) + eps);
+    }
+  });
+}
+
+/* ---------- data ---------- */
+const CORPORA = {
+  "Shakespeare": `To be, or not to be, that is the question:
+Whether 'tis nobler in the mind to suffer
+The slings and arrows of outrageous fortune,
+Or to take arms against a sea of troubles
+And by opposing end them. To die, to sleep,
+No more; and by a sleep to say we end
+The heart-ache and the thousand natural shocks
+That flesh is heir to. 'Tis a consummation
+Devoutly to be wish'd. To die, to sleep;
+To sleep, perchance to dream. Ay, there's the rub,
+For in that sleep of death what dreams may come,
+When we have shuffled off this mortal coil,
+Must give us pause. There's the respect
+That makes calamity of so long life.
+Now is the winter of our discontent
+Made glorious summer by this sun of York;
+And all the clouds that lour'd upon our house
+In the deep bosom of the ocean buried.
+Friends, Romans, countrymen, lend me your ears;
+I come to bury Caesar, not to praise him.
+The evil that men do lives after them;
+The good is oft interred with their bones.
+All the world's a stage,
+And all the men and women merely players;
+They have their exits and their entrances,
+And one man in his time plays many parts.`,
+  "Recipes": `Warm the pan over a low flame. Add the butter and let it foam.
+Stir the onions until they are soft and translucent, about eight minutes.
+Add the garlic and cook for one minute more, until fragrant.
+Pour in the stock and bring to a gentle simmer. Season with salt.
+Cover and cook for twenty minutes, stirring now and then.
+Taste and adjust the seasoning. Finish with lemon and parsley.
+Rest the meat for ten minutes before slicing against the grain.
+Whisk the eggs with the cream and a pinch of nutmeg.
+Fold the flour in gently, taking care not to knock out the air.
+Bake for thirty five minutes, until golden and risen.
+Cool on a rack before turning out of the tin.
+Toast the spices in a dry pan until they smell of themselves.
+Grind them fine and stir into the warm oil.
+Reduce the sauce until it coats the back of a spoon.
+Serve at once, with bread to catch what is left in the bowl.`,
+  "Code": `function render(state) {
+  const next = compute(state);
+  if (next === state) return;
+  for (const node of next.children) {
+    node.update(state.time);
+  }
+  return next;
+}
+const cache = new Map();
+function memo(key, fn) {
+  if (cache.has(key)) return cache.get(key);
+  const value = fn();
+  cache.set(key, value);
+  return value;
+}
+class Buffer {
+  constructor(size) {
+    this.data = new Float32Array(size);
+    this.length = 0;
+  }
+  push(value) {
+    this.data[this.length++] = value;
+  }
+  clear() {
+    this.length = 0;
+  }
+}
+export default function create(options = {}) {
+  const config = Object.assign({}, defaults, options);
+  return new Buffer(config.size);
+}`,
+};
+function setCorpus(text){
+  const chars = [...new Set(text)].sort();
+  vocab = chars; V = chars.length;
+  stoi = new Map(chars.map((c,i)=>[c,i]));
+  data = new Int32Array(text.length);
+  for(let i=0;i<text.length;i++) data[i] = stoi.get(text[i]);
+  $("cnote").textContent = text.length.toLocaleString()+" chars · "+V+" symbols";
+}
+function batch(B){
+  const T = cfg.T;
+  const idx = new Int32Array(B*T), tgt = new Int32Array(B*T);
+  for(let b=0;b<B;b++){
+    const s = (rnd()*(data.length - T - 1))|0;
+    for(let t=0;t<T;t++){ idx[b*T+t] = data[s+t]; tgt[b*T+t] = data[s+t+1]; }
+  }
+  return { idx, tgt };
+}
+
+/* ---------- sampling ---------- */
+function generate(seedText, n){
+  const T = cfg.T;
+  let ctx = [...seedText].map(c => stoi.has(c) ? stoi.get(c) : 0);
+  if(!ctx.length) ctx = [0];
+  let out = "";
+  const temp = +$("temp").value, K = +$("topk").value;
+  let lastProbs = null;
+  for(let i=0;i<n;i++){
+    const window = ctx.slice(-T);
+    const pad = new Int32Array(T);
+    const off = T - window.length;
+    for(let j=0;j<window.length;j++) pad[off+j] = window[j];
+    const { probs } = forward(pad, null, false);
+    const last = (T-1)*V;
+    const row = [];
+    for(let t=0;t<V;t++) row.push({ t, p: Math.pow(probs[last+t], 1/temp) });
+    row.sort((a,b)=>b.p-a.p);
+    const top = row.slice(0, K);
+    const sum = top.reduce((a,b)=>a+b.p,0);
+    let r = rnd()*sum, pick = top[0].t;
+    for(const c of top){ r -= c.p; if(r <= 0){ pick = c.t; break; } }
+    out += vocab[pick];
+    ctx.push(pick);
+    if(i === 0) lastProbs = row.slice(0,8);
+  }
+  return { out, lastProbs };
+}
+
+/* ---------- visualisation ---------- */
+let history = [];
+function drawChart(){
+  const c = $("chart"), d = window.devicePixelRatio||1, r = c.getBoundingClientRect();
+  if(c.width !== Math.round(r.width*d)){ c.width = Math.round(r.width*d); c.height = Math.round(116*d); }
+  const x = c.getContext("2d"), W = c.width, H = c.height, pad = 36*d;
+  x.fillStyle = "#0a0814"; x.fillRect(0,0,W,H);
+  if(history.length < 2) return;
+  let mx = 0; for(const v of history) mx = Math.max(mx, v);
+  mx = Math.max(0.6, mx);
+  x.strokeStyle = "#1c1830"; x.lineWidth = 1*d;
+  x.font = (9*d)+"px Red Hat Mono, monospace"; x.fillStyle = "#565073"; x.textAlign = "right";
+  for(let g=0;g<=3;g++){
+    const v = mx*g/3, y = H - 10*d - (v/mx)*(H-24*d);
+    x.beginPath(); x.moveTo(pad,y); x.lineTo(W-4*d,y); x.stroke();
+    x.fillText(v.toFixed(2), pad-5*d, y+3*d);
+  }
+  const grad = x.createLinearGradient(pad,0,W,0);
+  grad.addColorStop(0,"#7c4dff"); grad.addColorStop(1,"#ff2d95");
+  x.beginPath();
+  history.forEach((v,i) => {
+    const px = pad + i/(history.length-1)*(W-pad-4*d);
+    const py = H - 10*d - (Math.min(v,mx)/mx)*(H-24*d);
+    i ? x.lineTo(px,py) : x.moveTo(px,py);
+  });
+  x.strokeStyle = grad; x.lineWidth = 1.8*d; x.stroke();
+}
+function drawAttention(att, T, H){
+  const wrap = $("heads");
+  if(wrap.children.length !== H){
+    wrap.innerHTML = "";
+    for(let h=0;h<H;h++){
+      const d = document.createElement("div");
+      d.innerHTML = '<canvas width="'+T+'" height="'+T+'"></canvas><div class="hlab">head '+(h+1)+'</div>';
+      wrap.appendChild(d);
+    }
+  }
+  for(let h=0;h<H;h++){
+    const c = wrap.children[h].querySelector("canvas");
+    if(c.width !== T){ c.width = c.height = T; }
+    const x = c.getContext("2d"), img = x.createImageData(T,T);
+    let mx = 1e-6;
+    for(let i=0;i<T*T;i++) mx = Math.max(mx, att[h*T*T+i]);
+    for(let i=0;i<T;i++) for(let j=0;j<T;j++){
+      const a = att[h*T*T + i*T + j]/mx;
+      const o = (i*T+j)*4;
+      if(j > i){ img.data[o]=10; img.data[o+1]=8; img.data[o+2]=20; }
+      else { img.data[o] = 124 + a*131; img.data[o+1] = 77 - a*32; img.data[o+2] = 255 - a*106; }
+      img.data[o] *= (0.25 + a*0.75); img.data[o+1] *= (0.25 + a*0.75); img.data[o+2] *= (0.25 + a*0.75);
+      img.data[o+3] = 255;
+    }
+    x.putImageData(img,0,0);
+  }
+}
+function drawBars(rows){
+  const el = $("bars");
+  el.innerHTML = rows.map(r => {
+    const ch = vocab[r.t] === "\n" ? "\\n" : vocab[r.t] === " " ? "␣" : vocab[r.t];
+    return '<div class="brow"><span>'+ch.replace(/[<>&]/g,"")+'</span><div class="bw"><i style="width:'+
+      (r.pct*100).toFixed(1)+'%"></i></div><span>'+(r.pct*100).toFixed(1)+'%</span></div>';
+  }).join("");
+}
+
+/* ---------- loop ---------- */
+let running = false, tps = 0, tpsAcc = 0, tpsT = 0;
+function tick(){
+  requestAnimationFrame(tick);
+  if(!running || !M) return;
+  const lr = Math.pow(10, +$("lr").value);
+  const t0 = performance.now();
+  let loss = 0, steps = 0, toks = 0;
+  while(performance.now() - t0 < 30){
+    const { idx, tgt } = batch(8);
+    zeroGrads();
+    const f = forward(idx, tgt, false);
+    backward(idx, tgt, f.cache);
+    adam(lr);
+    loss = f.loss; steps++; toks += idx.length;
+  }
+  tpsAcc += toks;
+  const now = performance.now();
+  if(now - tpsT > 600){ tps = tpsAcc/((now-tpsT)/1000); tpsAcc = 0; tpsT = now; $("s-tps").textContent = Math.round(tps).toLocaleString(); }
+  history.push(loss); if(history.length > 300) history.shift();
+  $("s-loss").textContent = loss.toFixed(3);
+  $("s-ppl").textContent = Math.exp(loss).toFixed(1);
+  $("stepn").textContent = "step "+M.step.toLocaleString();
+  drawChart();
+
+  if(M.step % 24 === 0) sample();
+}
+function sample(){
+  const seedText = "The ";
+  const g = generate(seedText, 180);
+  $("out").innerHTML = '<span class="seed">'+seedText.replace(/[<>&]/g,"")+'</span><span class="new">'+
+    g.out.replace(/[<>&]/g, c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]))+'</span>';
+  if(g.lastProbs){
+    const tot = g.lastProbs.reduce((a,b)=>a+b.p,0) || 1;
+    drawBars(g.lastProbs.map(r => ({ t:r.t, pct:r.p/tot })));
+    $("ctxnote").textContent = 'after "'+seedText.trim()+'"';
+  }
+  // attention for a fixed probe, so the picture is comparable between steps
+  const probe = new Int32Array(cfg.T);
+  const src = [..."the quick brown fox jumps over the lazy dog and then rests"].map(c => stoi.has(c)?stoi.get(c):0);
+  for(let i=0;i<cfg.T;i++) probe[i] = src[i % src.length];
+  const f = forward(probe, null, true);
+  if(f.cache.attn) drawAttention(f.cache.attn, cfg.T, cfg.H);
+  $("anote").textContent = cfg.H+" heads · "+cfg.T+"×"+cfg.T;
+  $("gnote").textContent = "temperature "+(+$("temp").value).toFixed(2);
+}
+
+/* ---------- wiring ---------- */
+const cs = $("corpus");
+Object.keys(CORPORA).forEach(k => { const o = document.createElement("option"); o.value = o.textContent = k; cs.appendChild(o); });
+cs.onchange = () => { $("text").value = CORPORA[cs.value]; applyText(); };
+function applyText(){
+  const t = $("text").value;
+  if(t.length < 120){ $("status").textContent = "need at least 120 characters"; return; }
+  setCorpus(t);
+  buildModel($("size").value);
+  history = [];
+  $("status").textContent = running ? "training" : "ready";
+  sample();
+}
+$("apply").onclick = applyText;
+$("size").onchange = () => { buildModel($("size").value); history = []; sample(); };
+$("train").onclick = e => {
+  running = !running;
+  e.target.textContent = running ? "Pause" : "Train";
+  $("status").textContent = running ? "training" : "paused";
+  tpsT = performance.now(); tpsAcc = 0;
+};
+$("reset").onclick = () => { buildModel($("size").value); history = []; $("s-loss").textContent="—"; $("s-ppl").textContent="—"; sample(); };
+$("temp").oninput = e => { $("t-v").textContent = (+e.target.value).toFixed(2); $("gnote").textContent = "temperature "+(+e.target.value).toFixed(2); };
+$("topk").oninput = e => $("k-v").textContent = e.target.value;
+$("lr").oninput = e => $("l-v").textContent = Math.pow(10, +e.target.value).toFixed(4);
+window.addEventListener("resize", drawChart);
+
+$("text").value = CORPORA.Shakespeare;
+$("l-v").textContent = Math.pow(10, +$("lr").value).toFixed(4);
+applyText();
+tick();
+</script>
+</body>
+</html>
