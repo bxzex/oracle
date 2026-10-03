@@ -7,67 +7,67 @@
 <meta name="description" content="A character-level transformer with real multi-head self-attention, trained in the browser on text you paste, with its attention shown as it reads." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Red+Hat+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;700&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
 :root{
-  --bg:#07060d; --panel:#0d0b17; --line:#1a1729; --line2:#272240;
-  --ink:#ece9f7; --sub:#8f88ad; --dim:#565073;
-  --vi:#7c4dff; --mg:#ff2d95; --cy:#25e8c8;
-  --d:"Archivo",system-ui,sans-serif;
-  --m:"Red Hat Mono",ui-monospace,Menlo,monospace;
+  --bg:#0b0d0f; --panel:#111417; --line:#1e2327; --line2:#2d3439;
+  --ink:#eceeef; --sub:#98a2a8; --dim:#5f696f;
+  --vi:#ff6b4a; --mg:#f2c14e; --cy:#f2c14e;
+  --d:"Spline Sans",system-ui,sans-serif;
+  --m:"Spline Sans Mono",ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--m);font-size:13px;padding:0 20px 60px;-webkit-font-smoothing:antialiased;}
+body{background:var(--bg);color:var(--ink);font-family:var(--d);font-size:14px;padding:0 20px 60px;-webkit-font-smoothing:antialiased;}
 .wrap{max-width:1200px;margin:0 auto}
 header{padding:34px 0 20px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;border-bottom:1px solid var(--line2)}
-h1{font-family:var(--d);font-weight:800;font-size:40px;line-height:1;margin:0;letter-spacing:-.04em}
-.sub{color:var(--sub);font-size:13px;line-height:1.6;max-width:54ch;margin:0 0 5px}
+h1{font-family:var(--d);font-weight:700;font-size:40px;line-height:1;margin:0;letter-spacing:-.02em}
+.sub{color:var(--sub);font-size:15px;line-height:1.55;max-width:66ch;margin:0 0 5px}
 .badge{margin-left:auto;font-size:10px;letter-spacing:.18em;color:var(--cy);border:1px solid var(--line2);padding:6px 12px;border-radius:999px;margin-bottom:5px}
 
 .bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--line)}
-button{font-family:var(--m);font-size:11.5px;font-weight:500;letter-spacing:.04em;color:var(--ink);background:#151027;
-  border:1px solid var(--line2);padding:9px 14px;cursor:pointer;border-radius:7px}
-button:hover{border-color:var(--vi);color:#c6b4ff}
-button.go{background:#6f45f0;border-color:#7c4dff;color:#fff;font-weight:600}
-button.go:hover{filter:brightness(1.1);color:#fff}
+button{font-family:var(--d);font-size:13px;font-weight:500;color:var(--ink);background:#181c20;
+  border:1px solid var(--line2);padding:9px 14px;cursor:pointer;border-radius:4px}
+button:hover{border-color:var(--vi);color:#ffb3a3}
+button.go{background:var(--vi);border-color:var(--vi);color:#1a0c08;font-weight:700}
+button.go:hover{filter:brightness(1.1);color:#1a0c08}
 button[disabled]{opacity:.35;cursor:not-allowed}
-select{font-family:var(--m);font-size:11.5px;background:#151027;color:var(--ink);border:1px solid var(--line2);padding:8px 9px;border-radius:7px}
-.status{margin-left:auto;font-size:11px;color:var(--dim);letter-spacing:.1em}
+select{font-family:var(--d);font-size:13px;background:#181c20;color:var(--ink);border:1px solid var(--line2);padding:8px 9px;border-radius:4px}
+.status{margin-left:auto;font-family:var(--m);font-size:12px;color:var(--sub)}
 
 .grid{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:18px;align-items:start}
 @media(max-width:940px){.grid{grid-template-columns:1fr}h1{font-size:30px}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.ch{padding:10px 14px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ch{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;font-weight:500;color:var(--sub);
   display:flex;justify-content:space-between;gap:10px}
-.ch b{color:var(--sub);font-weight:500;letter-spacing:.04em;text-transform:none}
+.ch b{color:var(--sub);font-weight:400;font-family:var(--m);font-size:12px}
 .cb{padding:14px}
-textarea{width:100%;min-height:104px;resize:vertical;background:#0a0814;color:var(--ink);border:1px solid var(--line2);
-  border-radius:8px;padding:11px;font-family:var(--m);font-size:12px;line-height:1.65;outline:none}
+textarea{width:100%;min-height:104px;resize:vertical;background:#0c0e10;color:var(--ink);border:1px solid var(--line2);
+  border-radius:3px;padding:11px;font-family:var(--m);font-size:12px;line-height:1.65;outline:none}
 textarea:focus{border-color:var(--vi)}
 .out{font-family:var(--m);font-size:13.5px;line-height:1.8;white-space:pre-wrap;word-break:break-word;min-height:150px;color:var(--ink)}
 .out .seed{color:var(--dim)}
-.out .new{color:#d8ccff}
+.out .new{color:#ffd9cf}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
 .st{padding:12px 14px;border-right:1px solid var(--line)}
 .st:last-child{border-right:0}
-.st .k{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
-.st .v{font-family:var(--d);font-weight:600;font-size:21px;margin-top:5px;letter-spacing:-.02em}
-canvas{display:block;width:100%;background:#0a0814;border:1px solid var(--line2);border-radius:8px}
+.st .k{font-size:12px;color:var(--sub)}
+.st .v{font-family:var(--m);font-weight:500;font-size:20px;margin-top:5px}
+canvas{display:block;width:100%;background:#0c0e10;border:1px solid var(--line2);border-radius:3px}
 .heads{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .heads canvas{image-rendering:pixelated;aspect-ratio:1}
-.hlab{font-size:9.5px;color:var(--dim);letter-spacing:.1em;text-align:center;margin-top:5px}
+.hlab{font-size:12px;color:var(--sub);text-align:center;margin-top:5px}
 .ctl{margin-bottom:11px}
-.ctl label{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
-.ctl label b{color:var(--mg);font-weight:600}
+.ctl label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--sub);margin-bottom:5px}
+.ctl label b{color:var(--ink);font-weight:400;font-family:var(--m)}
 input[type=range]{width:100%;accent-color:var(--vi);background:transparent}
 .bars{display:grid;gap:3px;margin-top:4px}
-.brow{display:grid;grid-template-columns:24px 1fr 44px;gap:8px;align-items:center;font-size:11px;color:var(--sub)}
-.bw{height:8px;background:#151027;border-radius:3px;overflow:hidden}
+.brow{font-family:var(--m);display:grid;grid-template-columns:24px 1fr 44px;gap:8px;align-items:center;font-size:11px;color:var(--sub)}
+.bw{height:8px;background:#181c20;border-radius:1px;overflow:hidden}
 .bw i{display:block;height:100%;background:var(--vi);width:0}
-.arch{font-size:11px;color:var(--sub);line-height:1.95}
+.arch{font-family:var(--m);font-size:11.5px;color:var(--sub);line-height:1.95}
 .arch b{color:var(--cy);font-weight:500}
-footer{color:var(--dim);font-size:11.5px;margin-top:24px;border-top:1px solid var(--line2);padding-top:16px;line-height:1.8}
+footer{color:var(--sub);font-size:12.5px;margin-top:24px;border-top:1px solid var(--line2);padding-top:16px;line-height:1.8}
 footer a{color:var(--sub)}
 </style>
 </head>
@@ -76,7 +76,7 @@ footer a{color:var(--sub)}
 <header>
   <div>
     <h1>Oracle</h1>
-    <p class="sub" style="margin-top:11px">A character-level transformer with real multi-head causal self-attention, layer norm, residuals and Adam, trained in this tab on whatever text you paste, with its attention shown as it reads.</p>
+    <p class="sub" style="margin-top:11px">A character-level transformer with multi-head causal self-attention, layer norm, residuals and Adam, trained in this tab on whatever text you paste, with its attention shown as it reads.</p>
   </div>
   
 </header>
@@ -98,10 +98,10 @@ footer a{color:var(--sub)}
     <div class="card">
       <div class="ch"><span>Training</span><b id="stepn">step 0</b></div>
       <div class="stats" style="border-top:0">
-        <div class="st"><div class="k">Loss</div><div class="v" id="s-loss">—</div></div>
-        <div class="st"><div class="k">Perplexity</div><div class="v" id="s-ppl">—</div></div>
-        <div class="st"><div class="k">Parameters</div><div class="v" id="s-par">—</div></div>
-        <div class="st"><div class="k">Tokens/s</div><div class="v" id="s-tps">—</div></div>
+        <div class="st"><div class="k">Loss</div><div class="v" id="s-loss">–</div></div>
+        <div class="st"><div class="k">Perplexity</div><div class="v" id="s-ppl">–</div></div>
+        <div class="st"><div class="k">Parameters</div><div class="v" id="s-par">–</div></div>
+        <div class="st"><div class="k">Tokens/s</div><div class="v" id="s-tps">–</div></div>
       </div>
       <div class="cb"><canvas id="chart" height="116"></canvas></div>
     </div>
@@ -112,17 +112,17 @@ footer a{color:var(--sub)}
     </div>
 
     <div class="card" style="margin-top:18px">
-      <div class="ch"><span>Attention, final layer</span><b id="anote">—</b></div>
+      <div class="ch"><span>Attention, final layer</span><b id="anote">–</b></div>
       <div class="cb">
         <div class="heads" id="heads"></div>
-        <p style="font-size:10.5px;color:var(--dim);margin:11px 0 0;line-height:1.7">Rows are the character being predicted, columns the characters it may look back at. The upper triangle is masked, because a causal model cannot read ahead.</p>
+        <p style="font-size:12.5px;color:var(--sub);margin:11px 0 0;line-height:1.6">Rows are the character being predicted, columns the characters it may look back at. The upper triangle is masked, because a causal model cannot read ahead.</p>
       </div>
     </div>
   </div>
 
   <div>
     <div class="card">
-      <div class="ch"><span>Corpus</span><b id="cnote">—</b></div>
+      <div class="ch"><span>Corpus</span><b id="cnote">–</b></div>
       <div class="cb"><textarea id="text" spellcheck="false"></textarea>
         <button id="apply" style="margin-top:9px;width:100%">Use this text</button></div>
     </div>
@@ -135,7 +135,7 @@ footer a{color:var(--sub)}
       </div>
     </div>
     <div class="card" style="margin-top:18px">
-      <div class="ch"><span>Next character</span><b id="ctxnote">—</b></div>
+      <div class="ch"><span>Next character</span><b id="ctxnote">–</b></div>
       <div class="cb"><div class="bars" id="bars"></div></div>
     </div>
     <div class="card" style="margin-top:18px">
@@ -146,7 +146,7 @@ footer a{color:var(--sub)}
 </div>
 
 <footer>
-  Built by <a href="https://bxzex.com">bxzex</a>. Attention, layer norm, GELU, residual streams and Adam, with every gradient derived by hand and checked against numerical differentiation.
+  © 2026 <a href="https://bxzex.com">bxzex</a>. Attention, layer norm, GELU, residual streams and Adam, with every gradient derived by hand and checked against numerical differentiation.
   <a href="https://github.com/bxzex/oracle">Source on GitHub</a>.
 </footer>
 </div>
@@ -589,19 +589,19 @@ function drawChart(){
   const c = $("chart"), d = window.devicePixelRatio||1, r = c.getBoundingClientRect();
   if(c.width !== Math.round(r.width*d)){ c.width = Math.round(r.width*d); c.height = Math.round(116*d); }
   const x = c.getContext("2d"), W = c.width, H = c.height, pad = 36*d;
-  x.fillStyle = "#0a0814"; x.fillRect(0,0,W,H);
+  x.fillStyle = "#0c0e10"; x.fillRect(0,0,W,H);
   if(history.length < 2) return;
   let mx = 0; for(const v of history) mx = Math.max(mx, v);
   mx = Math.max(0.6, mx);
-  x.strokeStyle = "#1c1830"; x.lineWidth = 1*d;
-  x.font = (9*d)+"px Red Hat Mono, monospace"; x.fillStyle = "#565073"; x.textAlign = "right";
+  x.strokeStyle = "#1e2327"; x.lineWidth = 1*d;
+  x.font = (9*d)+"px Spline Sans Mono, monospace"; x.fillStyle = "#5f696f"; x.textAlign = "right";
   for(let g=0;g<=3;g++){
     const v = mx*g/3, y = H - 10*d - (v/mx)*(H-24*d);
     x.beginPath(); x.moveTo(pad,y); x.lineTo(W-4*d,y); x.stroke();
     x.fillText(v.toFixed(2), pad-5*d, y+3*d);
   }
   const grad = x.createLinearGradient(pad,0,W,0);
-  grad.addColorStop(0,"#7c4dff"); grad.addColorStop(1,"#ff2d95");
+  grad.addColorStop(0,"#ff6b4a"); grad.addColorStop(1,"#f2c14e");
   x.beginPath();
   history.forEach((v,i) => {
     const px = pad + i/(history.length-1)*(W-pad-4*d);
@@ -629,8 +629,8 @@ function drawAttention(att, T, H){
     for(let i=0;i<T;i++) for(let j=0;j<T;j++){
       const a = att[h*T*T + i*T + j]/mx;
       const o = (i*T+j)*4;
-      if(j > i){ img.data[o]=10; img.data[o+1]=8; img.data[o+2]=20; }
-      else { img.data[o] = 124 + a*131; img.data[o+1] = 77 - a*32; img.data[o+2] = 255 - a*106; }
+      if(j > i){ img.data[o]=12; img.data[o+1]=14; img.data[o+2]=16; }
+      else { img.data[o] = 255 - a*13; img.data[o+1] = 107 + a*86; img.data[o+2] = 74 + a*4; }
       img.data[o] *= (0.25 + a*0.75); img.data[o+1] *= (0.25 + a*0.75); img.data[o+2] *= (0.25 + a*0.75);
       img.data[o+3] = 255;
     }
@@ -714,7 +714,7 @@ $("train").onclick = e => {
   $("status").textContent = running ? "training" : "paused";
   tpsT = performance.now(); tpsAcc = 0;
 };
-$("reset").onclick = () => { buildModel($("size").value); history = []; $("s-loss").textContent="—"; $("s-ppl").textContent="—"; sample(); };
+$("reset").onclick = () => { buildModel($("size").value); history = []; $("s-loss").textContent="–"; $("s-ppl").textContent="–"; sample(); };
 $("temp").oninput = e => { $("t-v").textContent = (+e.target.value).toFixed(2); $("gnote").textContent = "temperature "+(+e.target.value).toFixed(2); };
 $("topk").oninput = e => $("k-v").textContent = e.target.value;
 $("lr").oninput = e => $("l-v").textContent = Math.pow(10, +e.target.value).toFixed(4);
